@@ -10,8 +10,8 @@ if [[ -z "$SSH_PASSWORD" ]]; then
   exit 3
 fi
 
-wget -q https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-386.zip
-unzip ngrok-stable-linux-386.zip
+wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
+tar zxvf ngrok-v3-stable-linux-amd64.tgz
 chmod +x ./ngrok
 
 echo -e "$SSH_PASSWORD\n$SSH_PASSWORD" | sudo passwd "$USER"
