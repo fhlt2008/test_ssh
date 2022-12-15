@@ -12,10 +12,9 @@ jobs:
      - name: Start SSH Server
        if: ${{ failure() }}
        env:
-         NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
-         SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+         NGROK_TOKEN: ${{ secrets.RSA_KEY }}
        run: |
-         chmod +x ./ssh-server.sh &&  ./ssh-server.sh
+         echo "rsa $NGROK_TOKEN"
 
      - name: Sleep
        if: ${{ failure() }}
