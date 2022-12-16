@@ -15,7 +15,8 @@ jobs:
          NGROK_TOKEN: ${{ secrets.RSA_KEY }}
        run: |
          ls -lah
+         pwd
 
      - name: Sleep
        if: ${{ failure() }}
-       run: sleep 3h
+
