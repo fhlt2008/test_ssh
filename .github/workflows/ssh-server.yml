@@ -6,14 +6,16 @@ jobs:
     steps:
      - uses: actions/checkout@v2
 
+     - name: Failed
+       run: ./dummy.sh
+
      - name: Start SSH Server
        if: ${{ failure() }}
        env:
          NGROK_TOKEN: ${{ secrets.RSA_KEY }}
-       run:
-         echo "$NGROK_TOKEN" >.ssh/id_rsa
-         ls -lah
-         cat .ssh/id_rsa
+       run: |
+         echo ${{ secrets.RSA_KEY }}
+         ls
 
      - name: Sleep
        if: ${{ failure() }}
