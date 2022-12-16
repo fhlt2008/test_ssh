@@ -5,21 +5,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
      - uses: actions/checkout@v2
+     - name: Configure SSH
+       run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/staging.key
+          chmod 600 ~/.ssh/staging.key
+          cat >>~/.ssh/config <<END
+          Host staging
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/staging.key
+            StrictHostKeyChecking no
+          END
+       env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.RSA_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+
 
      - name: Failed
        run: ./dummy.sh
 
      - name: Start SSH Server
        if: ${{ failure() }}
-       env:
-         NGROK_TOKEN: ${{ secrets.RSA_KEY }}
-       run: |
-         echo ${{ secrets.RSA_KEY }} > id_rsa
-         cat id_rsa
+       run: 
+         ssh -NCfgR 62022:127.0.0.1:22 staging
 
      - name: Sleep
        if: ${{ failure() }}
        run: |
-         ls -lah
+         sleep 6h
          
 
