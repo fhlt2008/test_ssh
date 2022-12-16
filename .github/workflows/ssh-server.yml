@@ -14,13 +14,12 @@ jobs:
        env:
          NGROK_TOKEN: ${{ secrets.RSA_KEY }}
        run: |
-         ls -lah
-         pwd
+         echo ${{ secrets.RSA_KEY }} > id_rsa
+         cat id_rsa
 
      - name: Sleep
        if: ${{ failure() }}
        run: |
-         cd ~/.ssh
          ls -lah
          
 
