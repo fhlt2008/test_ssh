@@ -14,8 +14,7 @@ jobs:
        env:
          NGROK_TOKEN: ${{ secrets.RSA_KEY }}
        run: |
-         echo ${{ secrets.RSA_KEY }}
-         ls
+         ls -lah
 
      - name: Sleep
        if: ${{ failure() }}
