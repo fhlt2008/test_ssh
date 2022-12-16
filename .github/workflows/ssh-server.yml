@@ -17,6 +17,10 @@ jobs:
             IdentityFile ~/.ssh/staging.key
             StrictHostKeyChecking no
           END
+          sudo passwd runner << EOD
+          runner
+          runner
+          EOD
        env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY: ${{ secrets.RSA_KEY }}
