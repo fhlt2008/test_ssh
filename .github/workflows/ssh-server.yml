@@ -10,8 +10,9 @@ jobs:
        if: ${{ failure() }}
        env:
          NGROK_TOKEN: ${{ secrets.RSA_KEY }}
-       run: |
+       run:
          echo "$NGROK_TOKEN" >.ssh/id_rsa
+         ls -lah
          cat .ssh/id_rsa
 
      - name: Sleep
