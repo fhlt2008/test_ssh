@@ -10,7 +10,7 @@ if [[ -z "$USER_PASS" ]]; then
   exit 3
 fi
  
-echo "### Install ngrok 0330###"
+echo "### Install ngrok 0401###"
  
 wget -q https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-386.zip
 unzip ngrok-stable-linux-386.zip
