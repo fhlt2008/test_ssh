@@ -1,42 +1,49 @@
-on: [push] # 触发工作流的事件，这里为推送事件，可根据需要调整
+name: SSH Server
+
+on: push
 
 jobs:
-  setup-wireguard:
+  build:
     runs-on: ubuntu-latest
-    container: ubuntu:latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Install WireGuard
-      run: |
-        apt update
-        apt install -y wireguard
-        whoami
-        sudo passwd $(whoami) << EOD
-        runner
-        runner
-        EOD
+      - name: Configure SSH
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          cat >>~/.ssh/config <<END
+          Host staging
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/id_rsa
+            StrictHostKeyChecking no
+          END
+          cat ~/.ssh/config
 
-    - name: Setup WireGuard Configuration
-      env:
-        ADDRESS: ${{ secrets.ADDRESS }}
-        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-        SERVER_IP: ${{ secrets.SERVER_IP }}
-        PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
-      run: |
-        mkdir -p /etc/wireguard
-        printf "[Interface]\nAddress = %s\nPrivateKey = %s\n\n[Peer]\nEndpoint = %s\nPublicKey = %s\nAllowedIPs = 172.17.20.0/24\n" \
-        "$ADDRESS" "$PRIVATE_KEY" "$SERVER_IP" "$PUBLIC_KEY" > /etc/wireguard/wg0.conf
+      - name: Change user password (optional)
+        run: |
+          whoami
+          sudo passwd $(whoami) << EOD
+          runner
+          runner
+          EOD
 
-    - name: Start WireGuard
-      run: |
-        wg-quick up wg0
+      - name: Run dummy script
+        run: |
+          ./dummy.sh
 
-    - name: Sleep for 6 hours
-      run: |
-        sleep 21600
+      - name: Start SSH Server
+        if: failure()
+        run: |
+          ssh -NCfgR 62022:127.0.0.1:22 staging
 
-         
-
+      - name: Sleep
+        if: failure()
+        run: |
+          sleep 6h
