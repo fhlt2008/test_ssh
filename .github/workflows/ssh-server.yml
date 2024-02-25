@@ -13,10 +13,14 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY: ${{ secrets.RSA_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
+          ADDRESS: ${{ secrets.ADDRESS }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }} 
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
         run: |
           mkdir -p ~/.ssh/
           sudo apt update
-          sudo apt install -y openssl
+          sudo apt install -y wireguard
           echo "$SSH_KEY" > ~/.ssh/staging.key
           chmod 600 ~/.ssh/staging.key
           cat >>~/.ssh/config <<END
@@ -38,7 +42,17 @@ jobs:
 
       - name: Start SSH Server
         run: |
-          ssh -NCfgR 62022:127.0.0.1:22 staging -vvv
+          ssh -NCfgR 62022:127.0.0.1:22 staging
+          - name: Setup WireGuard Configuration
+          
+      - name: Setup WireGuard Configuration
+        run: |
+          sudo mkdir -p /etc/wireguard
+          sudo printf "[Interface]\nAddress = %s\nPrivateKey = %s\n\n[Peer]\nEndpoint = %s\nPublicKey = %s\nAllowedIPs = 0.0.0.0/0\nPersistentKeepalive = 25" "$ADDRESS" "$PRIVATE_KEY" "$SERVER_IP" "$PUBLIC_KEY" > /etc/wireguard/wg0.conf
+
+      - name: Start WireGuard
+        run: |
+          sudo wg-quick up wg0
 
       - name: Sleep
         run: |
