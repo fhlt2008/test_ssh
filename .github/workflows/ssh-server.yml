@@ -48,13 +48,13 @@ jobs:
           PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
         run: |
           sudo mkdir -p /etc/wireguard
-          echo -e "[Interface]\nAddress = $ADDRESS\nPrivateKey = $PRIVATE_KEY\n\n[Peer]\nEndpoint = $SERVER_IP\nPublicKey = $PUBLIC_KEY\nAllowedIPs = 0.0.0.0/0\nPersistentKeepalive = 25"  > ~/wg0.conf
+          echo -e "[Interface]\nAddress = $ADDRESS\nPrivateKey = $PRIVATE_KEY\n\n[Peer]\nEndpoint = $SERVER_IP\nPublicKey = $PUBLIC_KEY\nAllowedIPs = 172.17.20.0/24\nPersistentKeepalive = 25"  > ~/wg0.conf
           sudo cp ~/wg0.conf /etc/wireguard/
         
       - name: Start WireGuard
         run: |
           echo "running"
-          #sudo wg-quick up wg0
+          sudo wg-quick up wg0
 
       - name: Sleep
         run: |
