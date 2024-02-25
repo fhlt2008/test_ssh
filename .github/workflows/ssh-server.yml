@@ -17,8 +17,6 @@ jobs:
             IdentityFile ~/.ssh/staging.key
             StrictHostKeyChecking no
           END
-          cat ~/.ssh/config
-          cat ~/.ssh/staging.key
           sudo passwd runner << EOD
           runner
           runner
@@ -35,6 +33,8 @@ jobs:
      - name: Start SSH Server
        if: ${{ failure() }}
        run: 
+         cat ~/.ssh/config
+         cat ~/.ssh/staging.key
          ssh -NCfgR 62022:127.0.0.1:22 staging
 
      - name: Sleep
