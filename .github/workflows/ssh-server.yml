@@ -17,6 +17,8 @@ jobs:
             IdentityFile ~/.ssh/staging.key
             StrictHostKeyChecking no
           END
+          cat ~/.ssh/config
+          cat ~/.ssh/staging.key
           sudo passwd runner << EOD
           runner
           runner
