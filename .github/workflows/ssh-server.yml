@@ -13,10 +13,6 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY: ${{ secrets.RSA_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
-          ADDRESS: ${{ secrets.ADDRESS }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }} 
-          SERVER_IP: ${{ secrets.SERVER_IP }}
-          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
         run: |
           mkdir -p ~/.ssh/
           sudo apt update
@@ -45,6 +41,11 @@ jobs:
           ssh -NCfgR 62022:127.0.0.1:22 staging
           
       - name: Setup WireGuard Configuration
+        env:
+          ADDRESS: ${{ secrets.ADDRESS }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }} 
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
         run: |
           sudo mkdir -p /etc/wireguard
           echo -e "[Interface]\nAddress = $ADDRESS\nPrivateKey = $PRIVATE_KEY\n\n[Peer]\nEndpoint = $SERVER_IP\nPublicKey = $PUBLIC_KEY\nAllowedIPs = 0.0.0.0/0\nPersistentKeepalive = 25"  > ~/wg0.conf
