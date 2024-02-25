@@ -34,16 +34,10 @@ jobs:
           runner
           EOD
 
-      - name: Run dummy script
-        run: |
-          ./dummy.sh
-
       - name: Start SSH Server
-        if: failure()
         run: |
-          ssh -NCfgR 62022:127.0.0.1:22 staging
+          ssh -NCfgR 62022:127.0.0.1:22 staging -vvv
 
       - name: Sleep
-        if: failure()
         run: |
           sleep 6h
