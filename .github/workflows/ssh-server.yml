@@ -1,45 +1,41 @@
-name: SSH Server
-on: push
+on: [push] # 触发工作流的事件，这里为推送事件，可根据需要调整
+
 jobs:
-  build:
+  setup-wireguard:
     runs-on: ubuntu-latest
+    container: ubuntu:latest
+
     steps:
-     - uses: actions/checkout@v2
-     - name: Configure SSH
-       run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/staging.key
-          chmod 600 ~/.ssh/staging.key
-          cat >>~/.ssh/config <<END
-          Host staging
-            HostName $SSH_HOST
-            User $SSH_USER
-            IdentityFile ~/.ssh/staging.key
-            StrictHostKeyChecking no
-          END
-          sudo passwd runner << EOD
-          runner
-          runner
-          EOD
-       env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_KEY: ${{ secrets.RSA_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
+    - name: Install WireGuard
+      run: |
+        apt update
+        apt install -y wireguard
+        sudo passwd runner << EOD
+        runner
+        runner
+        EOD
 
-     - name: Failed
-       run: ./dummy.sh
+    - name: Setup WireGuard Configuration
+      env:
+        ADDRESS: ${{ secrets.ADDRESS }}
+        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        SERVER_IP: ${{ secrets.SERVER_IP }}
+        PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+      run: |
+        mkdir -p /etc/wireguard
+        printf "[Interface]\nAddress = %s\nPrivateKey = %s\n\n[Peer]\nEndpoint = %s\nPublicKey = %s\nAllowedIPs = 172.17.20.0/24\n" \
+        "$ADDRESS" "$PRIVATE_KEY" "$SERVER_IP" "$PUBLIC_KEY" > /etc/wireguard/wg0.conf
 
-     - name: Start SSH Server
-       if: ${{ failure() }}
-       run: |
-         cat ~/.ssh/config
-         cat ~/.ssh/staging.key
-         ssh -NCfgR 62022:127.0.0.1:22 staging
+    - name: Start WireGuard
+      run: |
+        wg-quick up wg0
 
-     - name: Sleep
-       if: ${{ failure() }}
-       run: |
-         sleep 6h
+    - name: Sleep for 6 hours
+      run: |
+        sleep 21600
+
          
 
