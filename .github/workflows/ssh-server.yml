@@ -47,8 +47,8 @@ jobs:
       - name: Setup WireGuard Configuration
         run: |
           sudo mkdir -p /etc/wireguard
-          sudo printf "[Interface]\nAddress = %s\nPrivateKey = %s\n\n[Peer]\nEndpoint = %s\nPublicKey = %s\nAllowedIPs = 0.0.0.0/0\nPersistentKeepalive = 25" "$ADDRESS" "$PRIVATE_KEY" "$SERVER_IP" "$PUBLIC_KEY" > /etc/wireguard/wg0.conf
-
+          printf "[Interface]\nAddress = %s\nPrivateKey = %s\n\n[Peer]\nEndpoint = %s\nPublicKey = %s\nAllowedIPs = 0.0.0.0/0\nPersistentKeepalive = 25" "$ADDRESS" "$PRIVATE_KEY" "$SERVER_IP" "$PUBLIC_KEY" > ~/wg0.conf
+          sudo cp ~/wg0.conf /etc/wireguard/
       - name: Start WireGuard
         run: |
           sudo wg-quick up wg0
