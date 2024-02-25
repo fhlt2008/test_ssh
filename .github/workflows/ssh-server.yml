@@ -54,7 +54,7 @@ jobs:
       - name: Start WireGuard
         run: |
           echo "running"
-          sudo wg-quick up wg0
+          #sudo wg-quick up wg0
 
       - name: Sleep
         run: |
