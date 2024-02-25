@@ -38,7 +38,8 @@ jobs:
 
       - name: Start SSH Server
         run: |
-          ssh -NCfgR 62022:127.0.0.1:22 staging
+          echo "test"
+          #ssh -NCfgR 62022:127.0.0.1:22 staging
           
       - name: Setup WireGuard Configuration
         env:
