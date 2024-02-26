@@ -10,34 +10,34 @@ jobs:
 
       - name: Configure SSH
         env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_KEY: ${{ secrets.RSA_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
+          #SSH_USER: ${{ secrets.SSH_USER }}
+          #SSH_KEY: ${{ secrets.RSA_KEY }}
+          #SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PUBKEY: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDkkvgVQn/eRFnSsWvX5dLsD1Yg4kIgDE7Uqgeec9QKl+GP8xDKcfREv6So6f93e4B0RKbTVNj5hDZyQMxzXfFIord7kKZxrePPVyxX1RgTYrvu90k5CLct846cT+eJkltmmhtaujX2tv+cCOmzOC+3HK6DAr14enBzNHZyFxeWng/+qWd99Dn27hN7X6zoC7sknKlPIPoiMJkEtvOb+DAaedtVbG2JUDZDza/BDnsPW0+/fKkvBh180krYJieMoGPyYrjS8G/D2/B/5tx1GLrxsOD55VRPU8gZlX1ycC3WgM4+wy+b/0C6GlbTXeD0gTAlkYS2Fbp3d9WQLKoGKXmH0YODs3mn9/WGlxGznyr55BIceFemdm4vwx9KBaOcatglTjygin4DOS/4lpk3YJ7CLJcBAaDn/liYPKAoJDQvTILd6Q1aE93cVoyR4kd2u5IWq/7NgogUpJcgPvRgKh02ZYtMeSxcpGeqpfyJabCn1lozXC/CJ161OrJXF0PdLo0= fhlt2008@localhost"
         run: |
           mkdir -p ~/.ssh/
           sudo apt update
           sudo apt install -y wireguard
-          echo "$SSH_KEY" > ~/.ssh/staging.key
+          #echo "$SSH_KEY" > ~/.ssh/staging.key
           echo "$SSH_PUBKEY" > ~/.ssh/authorized_keys
-          chmod 600 ~/.ssh/staging.key
+          #chmod 600 ~/.ssh/staging.key
           chmod 600 ~/.ssh/authorized_keys
-          cat >>~/.ssh/config <<END
-          Host staging
-            HostName $SSH_HOST
-            User $SSH_USER
-            IdentityFile ~/.ssh/staging.key
-            StrictHostKeyChecking no
-          END
-          cat ~/.ssh/config
+          #cat >>~/.ssh/config <<END
+          #Host staging
+          #  HostName $SSH_HOST
+          #  User $SSH_USER
+          #  IdentityFile ~/.ssh/staging.key
+          #  StrictHostKeyChecking no
+          #END
+          #cat ~/.ssh/config
 
       - name: Change user password (optional)
         run: |
           whoami
-          sudo passwd $(whoami) << EOD
-          runner
-          runner
-          EOD
+          #sudo passwd $(whoami) << EOD
+          #runner
+          #runner
+          #EOD
 
       - name: Start SSH Server
         run: |
