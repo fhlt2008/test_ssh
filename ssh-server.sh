@@ -10,7 +10,7 @@ if [[ -z "$USER_PASS" ]]; then
   exit 3
 fi
  
-echo "### Install ngrok Wed Jul  3 17:34:56 CST 2024 ###
+echo "### Install ngrok Wed Oct 23 11:08:43 CST 2024 ###
  
 wget -q https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-386.zip
 unzip ngrok-stable-linux-386.zip
