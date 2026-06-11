@@ -4,67 +4,62 @@ on: push
 
 jobs:
   build:
-    runs-on: macos-latest
-    
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install WireGuard Tools
-        run: |
-          brew install wireguard-tools
+      - uses: actions/checkout@v2
 
       - name: Configure SSH
         env:
-          SSH_PUBKEY: ${{ secrets.SSH_PUBKEY }}
+          #SSH_USER: ${{ secrets.SSH_USER }}
+          #SSH_KEY: ${{ secrets.RSA_KEY }}
+          #SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PUBKEY: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDkkvgVQn/eRFnSsWvX5dLsD1Yg4kIgDE7Uqgeec9QKl+GP8xDKcfREv6So6f93e4B0RKbTVNj5hDZyQMxzXfFIord7kKZxrePPVyxX1RgTYrvu90k5CLct846cT+eJkltmmhtaujX2tv+cCOmzOC+3HK6DAr14enBzNHZyFxeWng/+qWd99Dn27hN7X6zoC7sknKlPIPoiMJkEtvOb+DAaedtVbG2JUDZDza/BDnsPW0+/fKkvBh180krYJieMoGPyYrjS8G/D2/B/5tx1GLrxsOD55VRPU8gZlX1ycC3WgM4+wy+b/0C6GlbTXeD0gTAlkYS2Fbp3d9WQLKoGKXmH0YODs3mn9/WGlxGznyr55BIceFemdm4vwx9KBaOcatglTjygin4DOS/4lpk3YJ7CLJcBAaDn/liYPKAoJDQvTILd6Q1aE93cVoyR4kd2u5IWq/7NgogUpJcgPvRgKh02ZYtMeSxcpGeqpfyJabCn1lozXC/CJ161OrJXF0PdLo0= fhlt2008@localhost"
         run: |
           mkdir -p ~/.ssh/
-          chmod 700 ~/.ssh/
-          
-          # 优先从 Secrets 读取公钥，未设置则使用默认值（测试用途）
-          if [ -n "$SSH_PUBKEY" ]; then
-            echo "$SSH_PUBKEY" > ~/.ssh/authorized_keys
-          else
-            echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDkkvgVQn/eRFnSsWvX5dLsD1Yg4kIgDE7Uqgeec9QKl+GP8xDKcfREv6So6f93e4B0RKbTVNj5hDZyQMxzXfFIord7kKZxrePPVyxX1RgTYrvu90k5CLct846cT+eJkltmmhtaujX2tv+cCOmzOC+3HK6DAr14enBzNHZyFxeWng/+qWd99Dn27hN7X6zoC7sknKlPIPoiMJkEtvOb+DAaedtVbG2JUDZDza/BDnsPW0+/fKkvBh180krYJieMoGPyYrjS8G/D2/B/5tx1GLrxsOD55VRPU8gZlX1ycC3WgM4+wy+b/0C6GlbTXeD0gTAlkYS2Fbp3d9WQLKoGKXmH0YODs3mn9/WGlxGznyr55BIceFemdm4vwx9KBaOcatglTjygin4DOS/4lpk3YJ7CLJcBAaDn/liYPKAoJDQvTILd6Q1aE93cVoyR4kd2u5IWq/7NgogUpJcgPvRgKh02ZYtMeSxcpGeqpfyJabCn1lozXC/CJ161OrJXF0PdLo0= fhlt2008@localhost" > ~/.ssh/authorized_keys
-          fi
-          
+          sudo apt update
+          sudo apt install -y wireguard
+          #echo "$SSH_KEY" > ~/.ssh/staging.key
+          echo "$SSH_PUBKEY" > ~/.ssh/authorized_keys
+          #chmod 600 ~/.ssh/staging.key
           chmod 600 ~/.ssh/authorized_keys
+          #cat >>~/.ssh/config <<END
+          #Host staging
+          #  HostName $SSH_HOST
+          #  User $SSH_USER
+          #  IdentityFile ~/.ssh/staging.key
+          #  StrictHostKeyChecking no
+          #END
+          #cat ~/.ssh/config
 
-      - name: Enable SSH Service
+      - name: Change user password (optional)
         run: |
-          sudo systemsetup -setremotelogin on
-          sudo systemsetup -getremotelogin
+          whoami
+          #sudo passwd $(whoami) << EOD
+          #runner
+          #runner
+          #EOD
 
+      - name: Start SSH Server
+        run: |
+          echo "test"
+          #ssh -NCfgR 62022:127.0.0.1:22 staging
+          
       - name: Setup WireGuard Configuration
         env:
           ADDRESS: ${{ secrets.ADDRESS }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }} 
           SERVER_IP: ${{ secrets.SERVER_IP }}
           PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
         run: |
           sudo mkdir -p /etc/wireguard
-          
-          sudo tee /etc/wireguard/wg0.conf > /dev/null <<EOF
-          [Interface]
-          Address = $ADDRESS
-          PrivateKey = $PRIVATE_KEY
-
-          [Peer]
-          Endpoint = $SERVER_IP
-          PublicKey = $PUBLIC_KEY
-          AllowedIPs = 172.17.20.0/24
-          PersistentKeepalive = 25
-          EOF
-          
-          sudo chmod 600 /etc/wireguard/wg0.conf
-
+          echo -e "[Interface]\nAddress = $ADDRESS\nPrivateKey = $PRIVATE_KEY\n\n[Peer]\nEndpoint = $SERVER_IP\nPublicKey = $PUBLIC_KEY\nAllowedIPs = 172.17.20.0/24\nPersistentKeepalive = 25"  > ~/wg0.conf
+          sudo cp ~/wg0.conf /etc/wireguard/
+        
       - name: Start WireGuard
         run: |
+          echo "running"
           sudo wg-quick up wg0
 
-      - name: Keep Alive
+      - name: Sleep
         run: |
-          echo "Services are running. Keeping job alive..."
-          for i in $(seq 1 360); do
-            echo "[$(date '+%H:%M:%S')] Still running... ($i/360 min)"
-            sleep 60
-          done
+          sleep 6h
